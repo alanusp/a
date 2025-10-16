@@ -1,0 +1,21 @@
+{
+  "name": "card_testing",
+  "seed": 2024,
+  "volume": 50,
+  "patterns": [
+    {
+      "type": "burst",
+      "user_ids": ["user_001", "user_002"],
+      "amount": 15.0,
+      "probability": 0.9,
+      "duration": 5
+    },
+    {
+      "type": "mule_ring",
+      "merchants": ["m1", "m2", "m3"],
+      "base_probability": 0.6,
+      "jitter": 0.15
+    }
+  ],
+  "label_lag_minutes": 45
+}

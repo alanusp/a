@@ -1,0 +1,34 @@
+{
+  "graph_edges": {
+    "allowed": true,
+    "current": 0,
+    "hard_limit": 150000,
+    "name": "graph_edges",
+    "severity": "ok",
+    "soft_limit": 100000
+  },
+  "graph_nodes": {
+    "allowed": true,
+    "current": 0,
+    "hard_limit": 75000,
+    "name": "graph_nodes",
+    "severity": "ok",
+    "soft_limit": 50000
+  },
+  "redis_stream": {
+    "allowed": true,
+    "current": 0,
+    "hard_limit": 2500,
+    "name": "redis_stream",
+    "severity": "ok",
+    "soft_limit": 2000
+  },
+  "sketch_cardinality": {
+    "allowed": true,
+    "current": 0,
+    "hard_limit": 250000,
+    "name": "sketch_cardinality",
+    "severity": "ok",
+    "soft_limit": 200000
+  }
+}

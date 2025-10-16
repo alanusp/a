@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hyperion Operator Console</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/console/styles.css" />
+  </head>
+  <body class="console">
+    <header class="console__header">
+      <h1>Hyperion Console</h1>
+      <p>Live fraud telemetry with conformal uncertainty and policy insights.</p>
+    </header>
+    <main class="console__grid">
+      <section class="panel" id="live-feed">
+        <h2>Live Decisions</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Probability</th>
+              <th>Decision</th>
+              <th>Latency (ms)</th>
+            </tr>
+          </thead>
+          <tbody id="events"></tbody>
+        </table>
+      </section>
+      <section class="panel" id="chart-panel">
+        <h2>Probability Trend</h2>
+        <canvas id="probability-chart" width="480" height="240"></canvas>
+      </section>
+      <section class="panel" id="insights">
+        <h2>Latest Insight</h2>
+        <pre id="insight-log">Waiting for events…</pre>
+      </section>
+      <section class="panel" id="audit">
+        <h2>Audit Root</h2>
+        <p id="audit-root">pending</p>
+      </section>
+      <section class="panel" id="guardrail">
+        <h2>Safety Switch</h2>
+        <p id="guardrail-status">ALLOW</p>
+      </section>
+    </main>
+    <script src="/console/js/bundle.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "model_state": {
+    "path": "artifacts/model_state_dict.json",
+    "sha256": "1b1df2fbe7f2ba30c4e05add26c151f8e0b8fe279a43b2a38842548826524191"
+  },
+  "calibration": {
+    "path": "artifacts/calibration.json",
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+  },
+  "feature_store": {
+    "path": "feature_repo/feature_store.yaml",
+    "sha256": "712fe84a07f1bab50f3aeca0dbe52dc18e9cf99e7d662e7a4fc5e79d0c5def65"
+  },
+  "openapi": {
+    "path": "artifacts/openapi/baseline.json",
+    "sha256": "4e41886c4a23dac89426bd15bdd570576a1998b19bb5b6ec59ddb0e408f36869"
+  },
+  "schema_version": 1
+}

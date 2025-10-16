@@ -1,0 +1,1 @@
+{"fields":[{"name":"transaction_id","type":"string"},{"name":"fraud_probability","type":"double"},{"name":"is_fraud","type":"boolean"},{"name":"model_hash","type":"string"},{"name":"processed_at","type":"long"},{"default":null,"name":"dedupe_hit","type":["null","boolean"]}],"name":"com.hyperion.fraud.TransactionScored","type":"record"}
