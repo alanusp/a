@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ project_name }} Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Rajdhani', sans-serif;
+        background: radial-gradient(circle at top left, #1f2937, #0f172a);
+        color: #e2e8f0;
+      }
+      .neon {
+        text-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+      }
+      .glass {
+        backdrop-filter: blur(14px);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 64, 175, 0.25));
+        border: 1px solid rgba(56, 189, 248, 0.25);
+      }
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.6;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <main class="mx-auto max-w-6xl px-6 py-12">
+      <header class="flex flex-col gap-2 pb-10">
+        <h1 class="text-4xl font-semibold uppercase tracking-[0.4em] neon" style="font-family: 'Orbitron', sans-serif;">
+          {{ project_name }}
+        </h1>
+        <p class="text-cyan-300/80 uppercase tracking-[0.35em] text-sm">
+          Hyper Reactive Fraud Intelligence Grid
+        </p>
+      </header>
+
+      <section class="glass rounded-3xl p-8 shadow-2xl">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <article class="flex flex-col gap-2">
+            <span class="text-xs uppercase tracking-[0.3em] text-cyan-300">Latency Budget</span>
+            <span class="text-5xl font-bold text-cyan-200">{{ latency_budget }}ms</span>
+            <p class="text-sm text-slate-300/80">Guaranteed decisioning speed for premium merchants.</p>
+          </article>
+          <article class="flex flex-col gap-2">
+            <span class="text-xs uppercase tracking-[0.3em] text-cyan-300">Decision Threshold</span>
+            <span class="text-5xl font-bold text-cyan-200">{{ '%.2f' % threshold }}</span>
+            <p class="text-sm text-slate-300/80">Adaptive risk cut-off tuned for maximum profit defense.</p>
+          </article>
+          <article class="flex flex-col gap-2">
+            <span class="text-xs uppercase tracking-[0.3em] text-cyan-300">Streaming Backbone</span>
+            <span class="text-5xl font-bold text-cyan-200">Kafka x Bytewax</span>
+            <p class="text-sm text-slate-300/80">Consistent millisecond inference across the planet.</p>
+          </article>
+        </div>
+
+        <div class="mt-10">
+          <h2 class="mb-4 text-xl font-semibold uppercase tracking-[0.25em] text-cyan-200">
+            Live Fraud Telemetry
+          </h2>
+          <div class="overflow-hidden rounded-2xl border border-cyan-400/40">
+            <table class="min-w-full divide-y divide-cyan-400/40">
+              <thead class="bg-slate-900/80 text-cyan-200">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest">Transaction</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest">Customer</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest">Merchant</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest">Fraud Probability</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest">Decision</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-widest">Latency</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-cyan-400/20 text-slate-200">
+                {% for item in predictions %}
+                <tr class="hover:bg-cyan-400/5">
+                  <td class="px-4 py-3 font-semibold">{{ item.transaction_id }}</td>
+                  <td class="px-4 py-3 text-sm">{{ item.customer_id }}</td>
+                  <td class="px-4 py-3 text-sm">{{ item.merchant_id }}</td>
+                  <td class="px-4 py-3 text-sm">
+                    <span class="font-semibold text-cyan-300">{{ '%.3f' % item.fraud_probability }}</span>
+                  </td>
+                  <td class="px-4 py-3 text-sm">
+                    {% if item.is_fraud %}
+                    <span class="rounded-full bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-200">
+                      Block
+                    </span>
+                    {% else %}
+                    <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200">
+                      Approve
+                    </span>
+                    {% endif %}
+                  </td>
+                  <td class="px-4 py-3 text-sm">{{ '%.2f' % item.latency_ms }} ms</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-400">
+                    Awaiting live events from the streaming core.
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <footer class="mt-12 flex flex-col gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
+        <span>Powered by FastAPI · PyTorch · Feast · Bytewax · Redis · Kafka</span>
+        <span>Designed for sub-200ms fraud intelligence at planetary scale</span>
+      </footer>
+    </main>
+  </body>
+</html>

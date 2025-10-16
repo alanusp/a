@@ -1,0 +1,33 @@
+{
+  "generated_at": "2025-10-15T22:24:53.654996Z",
+  "hash": "26e4d0b35ffdfc5a88fc869ea845c8cd634da9da66ac3670368715341d920426",
+  "request": {
+    "account_age_days": 400.0,
+    "amount": 123.45,
+    "card_id": "card-001",
+    "chargeback_rate": 0.02,
+    "currency": "USD",
+    "customer_id": "cust-001",
+    "customer_tenure": 540.0,
+    "device_id": "dev-001",
+    "device_trust_score": 0.6,
+    "geo_distance": 15.0,
+    "ip_address": "203.0.113.1",
+    "merchant_id": "mrc-001",
+    "merchant_risk_score": 0.4,
+    "segment": "retail",
+    "transaction_id": "txn-golden-001",
+    "velocity_1h": 5.0,
+    "velocity_1m": 2.0
+  },
+  "response": {
+    "decision": "approve",
+    "expected_cost": 2.2334368838953526e-69,
+    "prediction_set": [
+      0,
+      1
+    ],
+    "probability": 2.2334368838953525e-71,
+    "threshold": 0.02702702702702703
+  }
+}

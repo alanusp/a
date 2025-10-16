@@ -1,0 +1,11 @@
+rules:
+  - name: high_amount_block
+    description: Block extremely large transactions immediately.
+    action: block
+    condition: amount > 7500
+    weight: 3.0
+  - name: velocity_review
+    description: Review medium risk velocity bursts.
+    action: review
+    condition: velocity > 5
+    weight: 1.5

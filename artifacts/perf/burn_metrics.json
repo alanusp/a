@@ -1,0 +1,22 @@
+{
+  "windows": [
+    {
+      "name": "1h",
+      "duration_minutes": 60,
+      "slo_window_minutes": 1440,
+      "error_rate": 0.0005,
+      "slo_error": 0.01,
+      "latency_p95": 90,
+      "latency_slo": 150
+    },
+    {
+      "name": "6h",
+      "duration_minutes": 360,
+      "slo_window_minutes": 1440,
+      "error_rate": 0.0004,
+      "slo_error": 0.01,
+      "latency_p95": 95,
+      "latency_slo": 150
+    }
+  ]
+}
