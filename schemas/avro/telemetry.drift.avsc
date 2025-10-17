@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "DriftTelemetry",
+  "namespace": "com.hyperion.fraud",
+  "fields": [
+    {"name": "metric_window_start", "type": "long"},
+    {"name": "metric_window_end", "type": "long"},
+    {"name": "population_stability_index", "type": "double"},
+    {"name": "kolmogorov_smirnov", "type": "double"}
+  ]
+}

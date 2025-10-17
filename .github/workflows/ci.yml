@@ -1,0 +1,152 @@
+name: CI / build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      PYTHONUNBUFFERED: "1"
+      PLAYWRIGHT_BROWSERS_PATH: /tmp/pw
+      AEGISFLUX_ENABLE_AIRGAP: "1"
+      AEGISFLUX_DISABLE_EXTERNAL_SERVICES: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install base requirements
+        run: |
+          set -euo pipefail
+          if [ -f requirements.lock ]; then
+            pip install -r requirements.lock || pip install -r requirements.txt
+          else
+            pip install -r requirements.txt
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Playwright
+        run: |
+          set -euo pipefail
+          pip install playwright==1.*
+          python -m playwright install --with-deps chromium
+
+      - name: Set up Git LFS
+        run: |
+          set -euo pipefail
+          git lfs install --local
+          git lfs pull --exclude="" --include="docs/assets/*"
+
+      - name: Lint and type-check
+        run: |
+          set -euo pipefail
+          pip install ruff mypy || true
+          ruff check .
+          mypy app || true
+
+      - name: Generate SDK clients
+        run: |
+          set -euo pipefail
+          make clients || (python scripts/gen_clients.py || true)
+
+      - name: OpenAPI and docs gates
+        run: |
+          set -euo pipefail
+          make openapi-export || true
+          make openapi-diff || true
+          make docs-verify
+
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          pytest -q
+
+      - name: Boot API locally
+        run: |
+          set -euo pipefail
+          uvicorn app.main:app --host 127.0.0.1 --port 8000 --log-level warning > uvicorn.log 2>&1 &
+          echo $! > uvicorn.pid
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8000/readyz >/dev/null 2>&1 || curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat uvicorn.pid
+          tail -n 200 uvicorn.log || true
+          exit 1
+
+      - name: Capture screenshots
+        run: |
+          set -euo pipefail
+          python scripts/capture_screens.py --base http://127.0.0.1:8000 --out docs/assets
+
+      - name: Docs assets check
+        run: |
+          set -euo pipefail
+          python scripts/docs_verify.py
+
+      - name: Shutdown API
+        run: |
+          set -euo pipefail
+          if [ -f uvicorn.pid ]; then
+            kill $(cat uvicorn.pid) || true
+            wait $(cat uvicorn.pid) 2>/dev/null || true
+          fi
+
+      - name: Verify reproducibility gates
+        run: |
+          set -euo pipefail
+          make openapi-export || true
+          make openapi-diff || true
+          make docs-verify
+
+      - name: Dump CI environment
+        run: |
+          set -euo pipefail
+          python scripts/ci_print_env.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegisflux-artifacts
+          path: |
+            docs/assets/*.png
+            artifacts/**/*
+          if-no-files-found: warn
+
+      - name: Ensure no outbound egress
+        run: |
+          set -euo pipefail
+          python scripts/egress_gate.py
+
+      - name: Cleanup uvicorn
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ -f uvicorn.pid ]; then
+            kill $(cat uvicorn.pid) || true
+          fi
+
+      - name: Tail uvicorn logs on failure
+        if: failure()
+        run: |
+          set -euo pipefail
+          if [ -f uvicorn.log ]; then
+            cat uvicorn.log
+          fi

@@ -1,0 +1,14 @@
+{
+  "components": {},
+  "info": {
+    "contact": {
+      "email": "alanursapu@gmail.com",
+      "name": "Alan Uriel Saavedra Pulido"
+    },
+    "title": "AegisFlux",
+    "version": "0.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {},
+  "x-service-name": "aegisflux"
+}

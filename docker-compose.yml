@@ -1,0 +1,140 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "6379:6379"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc -w 2 127.0.0.1 2181 | grep imok"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    restart: on-failure
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  feast:
+    image: feastdev/feature-server:latest
+    restart: on-failure
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request as u; u.urlopen(\"http://127.0.0.1:6566/healthz\")'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      FEATURE_STORE_YAML: /workspace/feature_store.yaml
+    volumes:
+      - ./feature_repo/feature_store.yaml:/workspace/feature_store.yaml
+      - ./feature_repo:/workspace/feature_repo
+      - ./data:/workspace/data
+    ports:
+      - "6566:6566"
+  api:
+    build:
+      context: .
+      dockerfile: dockerfiles/api.Dockerfile
+    restart: on-failure
+    user: "1001:1001"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - REDIS_URL=redis://redis:6379/0
+      - MODEL_PATH=/workspace/artifacts/model_state_dict.json
+      - FEAST_REPO_PATH=/workspace/feature_repo
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./security/seccomp.json
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,mode=1700
+    volumes:
+      - ./:/workspace:ro
+      - ./artifacts:/workspace/artifacts
+      - ./artifacts/wal:/workspace/artifacts/wal
+      - ./feature_repo:/workspace/feature_repo:ro
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+  bytewax:
+    build:
+      context: .
+      dockerfile: dockerfiles/bytewax.Dockerfile
+    restart: on-failure
+    user: "1001:1001"
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - REDIS_URL=redis://redis:6379/0
+      - FEAST_REPO_PATH=/workspace/feature_repo
+      - MODEL_PATH=/workspace/artifacts/model_state_dict.json
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./security/seccomp.json
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,mode=1700
+    volumes:
+      - ./:/workspace:ro
+      - ./artifacts:/workspace/artifacts
+      - ./artifacts/wal:/workspace/artifacts/wal
+      - ./feature_repo:/workspace/feature_repo:ro
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+  shots:
+    build:
+      context: .
+      dockerfile: dockerfiles/screenshot.Dockerfile
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./docs/assets:/app/docs/assets
+    network_mode: "service:api"

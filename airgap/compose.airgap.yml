@@ -1,0 +1,14 @@
+services:
+  api:
+    environment:
+      PIP_NO_INDEX: "1"
+      PIP_FIND_LINKS: /wheelhouse
+    volumes:
+      - ./vendor/wheels:/wheelhouse:ro
+  bytewax:
+    environment:
+      PIP_NO_INDEX: "1"
+      PIP_FIND_LINKS: /wheelhouse
+    volumes:
+      - ./vendor/wheels:/wheelhouse:ro
+
